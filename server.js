@@ -88,7 +88,7 @@ app.post("/thoughts/:thoughtsId/like", async (req, res) => {
     res.json({ message: "Update of hearts successful" });
   } catch (error) {
     res.status(400).json({
-      message: `Could not update hearts for ${thoughtsId}`,
+      message: `Could not update hearts for thought with ${thoughtsId}`,
       error: error.errors,
     });
   }
