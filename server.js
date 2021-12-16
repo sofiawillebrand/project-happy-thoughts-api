@@ -43,11 +43,18 @@ app.get("/", (req, res) => {
 });
 
 app.get("/thoughts", async (req, res) => {
-  const happyThoughts = await HappyThought.find()
-    .sort({ createdAt: "desc" })
-    .limit(20)
-    .exec();
-  res.json(tasks);
+  try {
+    const happyThoughts = await HappyThought.find()
+      .sort({ createdAt: "desc" })
+      .limit(20)
+      .exec();
+    res.json(happyThoughts);
+  } catch (error) {
+    res.status(404).json({
+      message: "Could not fetch thoughts",
+      error: error.errors,
+    });
+  }
 });
 
 app.post("/thoughts", async (req, res) => {
@@ -64,6 +71,33 @@ app.post("/thoughts", async (req, res) => {
       error: error.errors,
     });
   }
+});
+
+app.post("/thoughts/:thoughtsId/like", async (req, res) => {
+  const { thoughtsId } = req.params;
+
+  try {
+    await HappyThought.findByIdAndUpdate(
+      thoughtsId,
+      {
+        $inc: { hearts: 1 },
+      },
+      { useFindAndModify: false }
+    );
+    res.json({ message: "Update of hearts successful" });
+  } catch (error) {
+    res.status(400).json({
+      message: `Could not update hearts for ${thoughtsId}`,
+      error: error.errors,
+    });
+  }
+});
+
+app.get("*", function (req, res) {
+  res.status(404).json({
+    message: "There is no such page",
+    success: false,
+  });
 });
 
 // Start the server
